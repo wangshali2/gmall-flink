@@ -52,7 +52,7 @@ public class FlinkCDC {
                 .databaseList("gmall-flink-200821")
                 .tableList("gmall-flink-200821.z_user_info") //注意：传入参数时需要"db.table"方式
                 .deserializer(new StringDebeziumDeserializationSchema())
-                .startupOptions(StartupOptions.initial())    //指定启动模式
+                .startupOptions(StartupOptions.latest())    //指定启动模式
 //                .debeziumProperties(properties)
                 .build();
         DataStreamSource<String> streamSource = env.addSource(sourceFunction);

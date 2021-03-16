@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-//@Controller
-@RestController // = @Controller + @ResponseBody
+@Controller
+//@RestController // = @Controller + @ResponseBody
 @Slf4j
 public class LoggerController {
 
@@ -24,7 +24,7 @@ public class LoggerController {
 //    @ResponseBody
     public String test1() {
         System.out.println("Success");
-        return "Success";
+        return "index.html";
     }
 
     @RequestMapping("test2")
