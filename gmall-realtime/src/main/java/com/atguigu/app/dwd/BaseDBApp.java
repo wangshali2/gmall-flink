@@ -1,14 +1,17 @@
 package com.atguigu.app.dwd;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ververica.cdc.connectors.mysql.MySQLSource;
 import com.alibaba.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.alibaba.ververica.cdc.debezium.DebeziumSourceFunction;
+import com.atguigu.app.func.DimSink;
 import com.atguigu.app.func.MyDeserializationSchemaFunction;
 import com.atguigu.app.func.TableProcessFunction;
 import com.atguigu.bean.TableProcess;
 import com.atguigu.utils.MyKafkaUtil;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
@@ -18,8 +21,13 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import org.apache.kafka.clients.producer.ProducerRecord;
+
+import javax.annotation.Nullable;
 
 //数据流：Web/App -> Nginx -> SpringBoot ->  Mysql -> Flink ->  Kafka(ods_base_db) -> Flink -> Kafka/Phoenix
 //进程:           MockDB                 -> Mysql ->  FlinkCDCApp -> Kafka(ZK) -> BaseDBApp -> Kafka/Phoenix
@@ -81,13 +89,33 @@ public class BaseDBApp {
         BroadcastConnectedStream<JSONObject, String> connectedStream = filterDS.connect(broadcastStream);
 
         //TODO 6 分流
-        OutputTag<JSONObject> hbaseOutPutTag = new OutputTag<JSONObject>("hbase"){};
+        OutputTag<JSONObject> hbaseOutPutTag = new OutputTag<JSONObject>("hbase") {
+        };
         SingleOutputStreamOperator<JSONObject> resultDS = connectedStream.process(new TableProcessFunction(hbaseOutPutTag, mapStateDescriptor));
 
         //TODO 7 将分好的流写入Phoenix表(维度数据)或者Kafka主题(事实数据)
         filterDS.print("主流原始数据>>>>>>>>");
         resultDS.print("Kafka>>>>>>>>");
         resultDS.getSideOutput(hbaseOutPutTag).print("HBase>>>>>>>>>>>");
+
+        //将数据写入Phoenix
+        resultDS.getSideOutput(hbaseOutPutTag).addSink(new DimSink());
+
+        //将数据写入Kafka
+        FlinkKafkaProducer<JSONObject> kafkaSinkBySchema = MyKafkaUtil.getKafkaSinkBySchema(new KafkaSerializationSchema<JSONObject>() {
+            @Override
+            public void open(SerializationSchema.InitializationContext context) throws Exception {
+                System.out.println("开始序列化Kafka数据");
+            }
+
+            //element:{"database":"","table":"","type":"","data":{"id":"11"...},"sinkTable":"dwd_xxx_xxx"}
+            @Override
+            public ProducerRecord<byte[], byte[]> serialize(JSONObject element, @Nullable Long timestamp) {
+                return new ProducerRecord<>(element.getString("sinkTable"),
+                        element.getString("data").getBytes());
+            }
+        });
+        resultDS.addSink(kafkaSinkBySchema);
 
         //TODO 8 启动任务
         env.execute();

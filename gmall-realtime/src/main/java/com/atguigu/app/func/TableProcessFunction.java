@@ -138,7 +138,7 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, S
     private void checkTable(String sinkTable, String sinkColumns, String sinkPk, String sinkExtend) {
 
         //处理主键以及扩展字段
-        if (sinkPk == null) {
+        if (sinkPk == null || sinkPk.equals("")) {
             sinkPk = "id";
         }
         if (sinkExtend == null) {
