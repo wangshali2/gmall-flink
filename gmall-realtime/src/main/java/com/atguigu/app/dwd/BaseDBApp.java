@@ -11,8 +11,11 @@ import com.atguigu.app.func.MyDeserializationSchemaFunction;
 import com.atguigu.app.func.TableProcessFunction;
 import com.atguigu.bean.TableProcess;
 import com.atguigu.utils.MyKafkaUtil;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -39,12 +42,12 @@ public class BaseDBApp {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1); //并行度设置应该与Kafka主题的分区数一致
 
-        //env.enableCheckpointing(5000L);
-        //env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        //env.getCheckpointConfig().setCheckpointTimeout(10000L);
-        //env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 5000L));
-        //env.setStateBackend(new FsStateBackend("hdfs://hadoop102:8020/gmall-flink/ck"));
-        //System.setProperty("HADOOP_USER_NAME", "atguigu");
+        env.enableCheckpointing(5000L);
+        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.getCheckpointConfig().setCheckpointTimeout(10000L);
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, 5000L));
+        env.setStateBackend(new FsStateBackend("hdfs://hadoop102:8020/gmall-flink/ck"));
+        System.setProperty("HADOOP_USER_NAME", "atguigu");
 
         //TODO 2 读取Kafka ods_base_db 主题数据创建流
         String groupId = "base_db_app_group";

@@ -37,6 +37,9 @@ public class MyKafkaUtil {
 
     public static <T> FlinkKafkaProducer<T> getKafkaSinkBySchema(KafkaSerializationSchema<T> kafkaSchema) {
 
+        //增加Kafka事务超时时间配置
+        properties.setProperty(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, 15 * 60 * 1000 + "");
+
         //创建Kafka生产者对象并返回
         return new FlinkKafkaProducer<T>(DWD_DEFAULT_TOPIC,
                 kafkaSchema,
