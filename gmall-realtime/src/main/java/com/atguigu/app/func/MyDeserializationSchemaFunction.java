@@ -32,10 +32,14 @@ public class MyDeserializationSchemaFunction implements DebeziumDeserializationS
         Struct after = struct.getStruct("after");
         JSONObject value = new JSONObject();
 
+//        System.out.println("Value:" + value);
         if (after != null) {
             Schema schema = after.schema();
             for (Field field : schema.fields()) {
-                value.put(field.name(), after.get(field.name()));
+                String name = field.name();
+                Object o = after.get(name);
+//                System.out.println(name + ":" + o);
+                value.put(name, o);
             }
         }
 

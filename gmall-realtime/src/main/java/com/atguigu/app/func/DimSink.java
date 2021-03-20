@@ -2,6 +2,7 @@ package com.atguigu.app.func;
 
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.common.GmallConfig;
+import com.atguigu.utils.DimUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
@@ -52,6 +53,12 @@ public class DimSink extends RichSinkFunction<JSONObject> {
 
             //执行
             preparedStatement.execute();
+
+            //判断如果为更新数据,则删除Redis中数据
+            String sourceTable = jsonObject.getString("table");
+            String value = jsonObject.getJSONObject("data").getString("id");
+            String key = sourceTable + ":" + value;
+            DimUtil.deleteCache(key);
 
             //提交数据
             connection.commit();
