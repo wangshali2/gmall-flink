@@ -11,7 +11,6 @@ import java.util.List;
 public class JDBCUtil {
 
     /**
-     * @param connection        JDBC连接
      * @param sql               查询语句
      * @param underScoreToCamel 是否需要将下划线命名转换为驼峰命名
      * @param <T>               返回值类型
