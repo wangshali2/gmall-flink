@@ -27,7 +27,7 @@ public class DimSink extends RichSinkFunction<JSONObject> {
     }
 
     /**
-     * @param jsonObject {"database":"","table":"","type":"","data":{"id":"11"...},"sinkTable":"dim_xxx_xxx"}
+     * @param jsonObject {"database":"","table":"user_info","type":"","data":{"id":"11"...},"sinkTable":"dim_user_info"}
      * @param context
      * @throws Exception
      */
@@ -54,14 +54,16 @@ public class DimSink extends RichSinkFunction<JSONObject> {
             //执行
             preparedStatement.execute();
 
-            //判断如果为更新数据,则删除Redis中数据
-            String sourceTable = jsonObject.getString("table");
-            String value = jsonObject.getJSONObject("data").getString("id");
-            String key = sourceTable + ":" + value;
-            DimUtil.deleteCache(key);
-
             //提交数据
             connection.commit();
+
+            //判断如果为更新数据,则删除Redis中数据
+            if ("update".equals(jsonObject.getString("type"))) {
+                String value = jsonObject.getJSONObject("data").getString("id");
+                String key = table + ":" + value;
+                DimUtil.deleteCache(key);
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("插入维度表：" + table + "数据失败！");

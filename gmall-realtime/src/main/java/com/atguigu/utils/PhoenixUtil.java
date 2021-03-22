@@ -56,7 +56,7 @@ public class PhoenixUtil {
                     //获取列名
                     String columnName = metaData.getColumnName(i);
                     if (underScoreToCamel) {
-                        columnName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, columnName);
+                        columnName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, columnName.toLowerCase());
                     }
 
                     //获取列值

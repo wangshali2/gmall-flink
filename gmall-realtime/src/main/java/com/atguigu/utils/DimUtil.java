@@ -18,7 +18,7 @@ public class DimUtil {
 
         //查询Redis
         Jedis jedis = RedisUtil.getJedis();
-        String redisKey = table + ":" + value;
+        String redisKey = table.toLowerCase() + ":" + value;
         String dimJson = jedis.get(redisKey);
         if (dimJson != null && dimJson.length() > 0) {
             jedis.close();

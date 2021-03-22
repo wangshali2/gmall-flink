@@ -36,6 +36,7 @@ public class FlinkCDCApp {
                 .databaseList("gmall-flink-200923")
                 .deserializer(new MyDeserializationSchemaFunction())
                 .startupOptions(StartupOptions.latest())
+//                .startupOptions(StartupOptions.initial()) //补全Phoenix中所有的维度信息
                 .build();
         DataStreamSource<String> mysqlDS = env.addSource(sourceFunction);
 
