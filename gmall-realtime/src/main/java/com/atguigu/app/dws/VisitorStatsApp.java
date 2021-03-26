@@ -3,6 +3,7 @@ package com.atguigu.app.dws;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.bean.VisitorStats;
+import com.atguigu.utils.ClickHouseUtil;
 import com.atguigu.utils.MyKafkaUtil;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -21,6 +22,10 @@ import org.apache.flink.util.Collector;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 
+//数据流：web/app -> Nginx -> SpringBoot -> Kafka(ods) -> FlinkApp -> Kafka(dwd) -> FlinkApp -> Kafka(dwm)
+// -> FlinkApp -> ClickHouse
+//进  程：MockLog -> Nginx -> Logger -> Kafka(ZK) -> BaseLogApp -> Kafka -> uvApp userJumpApp -> Kafka
+// -> VisitorStatsApp -> ClickHouse
 public class VisitorStatsApp {
 
     public static void main(String[] args) throws Exception {
@@ -74,7 +79,7 @@ public class VisitorStatsApp {
                     0L,
                     0L,
                     jsonObject.getJSONObject("page").getLong("during_time"),
-                    System.currentTimeMillis());
+                    jsonObject.getLong("ts"));
         });
 
         //4.2 格式化UV
@@ -93,7 +98,7 @@ public class VisitorStatsApp {
                     0L,
                     0L,
                     0L,
-                    System.currentTimeMillis());
+                    jsonObject.getLong("ts"));
         });
 
         //4.3 格式化跳出数据
@@ -112,7 +117,7 @@ public class VisitorStatsApp {
                     0L,
                     1L,
                     0L,
-                    System.currentTimeMillis());
+                    jsonObject.getLong("ts"));
         });
 
         //4.4 格式化进入页面数据
@@ -131,7 +136,7 @@ public class VisitorStatsApp {
                     1L,
                     0L,
                     0L,
-                    System.currentTimeMillis());
+                    jsonObject.getLong("ts"));
         });
 
         //TODO 5 union4个流的数据
@@ -140,7 +145,7 @@ public class VisitorStatsApp {
         //TODO 6 开窗聚合操作
         //6.1 提取数据中的时间戳生成WaterMark
         SingleOutputStreamOperator<VisitorStats> visitorStatsWithWmDS = unionDS.assignTimestampsAndWatermarks(WatermarkStrategy
-                .<VisitorStats>forBoundedOutOfOrderness(Duration.ofSeconds(2))
+                .<VisitorStats>forBoundedOutOfOrderness(Duration.ofSeconds(11))
                 .withTimestampAssigner(new SerializableTimestampAssigner<VisitorStats>() {
                     @Override
                     public long extractTimestamp(VisitorStats element, long recordTimestamp) {
@@ -196,6 +201,8 @@ public class VisitorStatsApp {
         });
 
         //TODO 7 将数据写入ClickHouse
+        result.print(">>>>>>>>>>>");
+        result.addSink(ClickHouseUtil.<VisitorStats>getClickHouseSink("insert into visitor_stats_200923 values(?,?,?,?,?,?,?,?,?,?,?,?)"));
 
         //TODO 8 启动任务
         env.execute();
