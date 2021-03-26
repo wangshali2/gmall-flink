@@ -45,14 +45,12 @@ public abstract class AsyncDimFunction<T> extends RichAsyncFunction<T, T> implem
                 //3.返回数据
                 resultFuture.complete(Collections.singleton(t));
             }
-
-
         });
 
     }
 
     @Override
     public void timeout(T input, ResultFuture<T> resultFuture) throws Exception {
-        System.out.println(input);
+        System.out.println("TimeOut>>>>>>>>>>>>" + input);
     }
 }
