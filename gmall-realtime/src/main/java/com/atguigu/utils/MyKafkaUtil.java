@@ -17,8 +17,11 @@ public class MyKafkaUtil {
     //指定DWD事实数据默认主题
     private static final String DWD_DEFAULT_TOPIC = "dwd_default_topic";
 
+    //Kafka连接参数
+    private static final String KAFKA_SERVER = "hadoop102:9092,hadoop103:9092,hadoop104:9092";
+
     static {
-        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop102:9092,hadoop103:9092,hadoop104:9092");
+        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER);
     }
 
     /**
@@ -57,6 +60,16 @@ public class MyKafkaUtil {
     public static FlinkKafkaConsumer<String> getKafkaSource(String groupId, String topic) {
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         return new FlinkKafkaConsumer<String>(topic, new SimpleStringSchema(), properties);
+    }
+
+    //拼接Kafka相关属性到DDL
+    public static String getKafkaDDL(String topic, String groupId) {
+        return "'connector' = 'kafka', " +
+                " 'topic' = '" + topic + "'," +
+                " 'properties.bootstrap.servers' = '" + KAFKA_SERVER + "', " +
+                " 'properties.group.id' = '" + groupId + "', " +
+                " 'format' = 'json', " +
+                " 'scan.startup.mode' = 'latest-offset'  ";
     }
 
 }
