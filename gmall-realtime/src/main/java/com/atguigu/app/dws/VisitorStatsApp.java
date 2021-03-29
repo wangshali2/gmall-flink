@@ -62,7 +62,6 @@ public class VisitorStatsApp {
         });
 
         //TODO 4 将4个流统一数据格式
-
         //4.1 格式化PV和访问时长
         SingleOutputStreamOperator<VisitorStats> pvAndTimeDS = pageLogDS.map(data -> {
             JSONObject jsonObject = JSON.parseObject(data);
