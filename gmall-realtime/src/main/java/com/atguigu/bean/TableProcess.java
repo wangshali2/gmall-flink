@@ -2,6 +2,8 @@ package com.atguigu.bean;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 @Data
 public class TableProcess {
     //动态分流Sink常量
@@ -22,4 +24,12 @@ public class TableProcess {
     String sinkPk;
     //建表扩展
     String sinkExtend;
+    String id;
+    String name;
+    String ip;
+    String protocol;
+    String port;
+    Long user_id;
+    Timestamp create_time;
+    Timestamp  update_time;
 }

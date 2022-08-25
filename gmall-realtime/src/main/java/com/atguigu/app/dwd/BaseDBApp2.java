@@ -54,6 +54,7 @@ public class BaseDBApp2 {
 
         //打印测试
 //        filterDS.print();
+/*
 
         //5.分流,ProcessFunction
         OutputTag<JSONObject> hbaseTag = new OutputTag<JSONObject>(TableProcess.SINK_TYPE_HBASE) {
@@ -66,6 +67,7 @@ public class BaseDBApp2 {
 
         //6.取出分流输出将数据写入Kafka或者Phoenix
         hbaseJsonDS.addSink(new DimSink());
+
         FlinkKafkaProducer<JSONObject> kafkaSinkBySchema = MyKafkaUtil.getKafkaSinkBySchema(new KafkaSerializationSchema<JSONObject>() {
             @Override
             public void open(SerializationSchema.InitializationContext context) throws Exception {
@@ -82,6 +84,7 @@ public class BaseDBApp2 {
 
         hbaseJsonDS.print("HBase>>>>>>>>");
         kafkaJsonDS.print("Kafka>>>>>>>>");
+*/
 
         //7.执行任务
         env.execute();

@@ -39,6 +39,7 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, S
     }
 
     //value :{"database":"gmall-realtime-200923","data":{"operate_type":"insert","sink_type":"kafka","sink_table":"dim_base_trademark","source_table":"base_trademark","sink_pk":"id","sink_columns":"id,tm_name"},"type":"insert","table":"table_process"}
+    //广播流
     @Override
     public void processBroadcastElement(String value, Context context, Collector<JSONObject> collector) throws Exception {
 

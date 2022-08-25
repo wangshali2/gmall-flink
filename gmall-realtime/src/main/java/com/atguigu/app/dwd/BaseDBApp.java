@@ -67,6 +67,7 @@ public class BaseDBApp {
                 }
             }
         });
+
         SingleOutputStreamOperator<JSONObject> filterDS = jsonObjDS.filter(jsonObj -> {
             String data = jsonObj.getString("data");
             return data != null && data.length() > 0;
@@ -94,6 +95,7 @@ public class BaseDBApp {
         //TODO 6 分流
         OutputTag<JSONObject> hbaseOutPutTag = new OutputTag<JSONObject>("hbase") {
         };
+
         SingleOutputStreamOperator<JSONObject> resultDS = connectedStream.process(new TableProcessFunction(hbaseOutPutTag, mapStateDescriptor));
 
         //TODO 7 将分好的流写入Phoenix表(维度数据)或者Kafka主题(事实数据)

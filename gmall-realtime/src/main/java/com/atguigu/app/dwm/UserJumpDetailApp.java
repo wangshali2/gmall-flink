@@ -65,19 +65,21 @@ public class UserJumpDetailApp {
 
         //TODO 5 定义模式序列
         //{"common":{"ar":"440000","ba":"Xiaomi","ch":"xiaomi","is_new":"1","md":"Xiaomi 9","mid":"mid_1","os":"Android 9.0","uid":"26","vc":"v2.1.134"},"page":{"during_time":4385,"item":"1,6","item_type":"sku_ids","last_page_id":"cart","page_id":"trade"},"ts":1615862194000}
-        Pattern<JSONObject, JSONObject> pattern = Pattern.<JSONObject>begin("begin").where(new SimpleCondition<JSONObject>() {
-            @Override
-            public boolean filter(JSONObject jsonObject) throws Exception {
-                String lastPageId = jsonObject.getJSONObject("page").getString("last_page_id");
-                return lastPageId == null || lastPageId.length() <= 0;
-            }
-        }).followedBy("follow").where(new SimpleCondition<JSONObject>() {
-            @Override
-            public boolean filter(JSONObject jsonObject) throws Exception {
-                String lastPageId = jsonObject.getJSONObject("page").getString("last_page_id");
-                return lastPageId != null && lastPageId.length() > 0;
-            }
-        }).within(Time.seconds(10));
+        Pattern<JSONObject, JSONObject> pattern = Pattern.<JSONObject>begin("begin")
+                .where(new SimpleCondition<JSONObject>() {
+                    @Override
+                    public boolean filter(JSONObject jsonObject) throws Exception {
+                        String lastPageId = jsonObject.getJSONObject("page").getString("last_page_id");
+                        return lastPageId == null || lastPageId.length() <= 0;
+                    }
+                }).followedBy("follow")
+                .where(new SimpleCondition<JSONObject>() {
+                    @Override
+                    public boolean filter(JSONObject jsonObject) throws Exception {
+                        String lastPageId = jsonObject.getJSONObject("page").getString("last_page_id");
+                        return lastPageId != null && lastPageId.length() > 0;
+                    }
+                }).within(Time.seconds(10));
 
         //TODO 6 将模式序列作用到流上
         PatternStream<JSONObject> patternStream = CEP.pattern(keyedStream, pattern);

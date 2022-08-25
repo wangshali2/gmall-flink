@@ -27,9 +27,9 @@ public class JDBCUtil {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://hadoop102:3306/gmall-realtime-200923?characterEncoding=utf-8&useSSL=false",
-                    "root",
-                    "000000"
+                    "jdbc:mysql://172.31.0.81:3306/colossus?characterEncoding=utf-8&useSSL=false",
+                    "matrix",
+                    "7xNetworks@C0M"
             );
 
             //预编译SQL
@@ -103,7 +103,7 @@ public class JDBCUtil {
     public static void main(String[] args) throws Exception {
 
         List<TableProcess> tableProcesses = queryList(
-                "select * from table_process",
+                "select * from npm_application",
                 TableProcess.class,
                 true);
 

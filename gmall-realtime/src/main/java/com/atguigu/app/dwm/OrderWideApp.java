@@ -112,7 +112,8 @@ public class OrderWideApp {
 
         //TODO 5 查询Phoenix,补全维度信息
         //5.1 关联用户维度
-        SingleOutputStreamOperator<OrderWide> orderWideWithUserDS = AsyncDataStream.unorderedWait(orderWideDS,
+        SingleOutputStreamOperator<OrderWide> orderWideWithUserDS = AsyncDataStream.unorderedWait(
+                orderWideDS,
                 new AsyncDimFunction<OrderWide>("DIM_USER_INFO") {
 
                     @Override
@@ -235,7 +236,5 @@ public class OrderWideApp {
 
         //TODO 7 启动任务
         env.execute();
-
     }
-
 }
